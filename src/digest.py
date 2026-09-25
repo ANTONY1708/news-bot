@@ -1,0 +1,154 @@
+"""Build the HTML email body from ranked, grouped items."""
+from __future__ import annotations
+
+import html
+import logging
+from datetime import datetime, timezone
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # pragma: no cover — py<3.9
+    ZoneInfo = None  # type: ignore
+
+log = logging.getLogger("newsbot.digest")
+
+TOPIC_TITLES = {
+    "ai": "🧠 AI & LLMs",
+    "models": "🧩 Free & Open Models",
+    "agents": "🤖 Agents",
+    "automation": "⚙️ Automation & Workflow",
+    "video": "🎬 AI Video",
+    "audio": "🔊 AI Audio & Voice",
+    "marketing": "📣 Marketing",
+    "sales": "💼 Sales",
+    "gtm": "🚀 Go-To-Market",
+    "abm": "🎯 ABM",
+    "tam": "📊 TAM & Research",
+    "seo": "🔎 SEO",
+    "linkedin": "💬 LinkedIn Pulse",
+}
+
+# Preferred display order; any extra topics get appended after.
+TOPIC_ORDER = ["ai", "models", "agents", "automation", "video", "audio",
+               "marketing", "sales", "gtm", "abm", "tam", "seo", "linkedin"]
+
+TIER_BADGE = {"A": "native", "B": "release", "C": "alert"}
+
+
+def _fmt_time(dt: datetime | None, tz_name: str) -> str:
+    if not dt:
+        return ""
+    try:
+        if ZoneInfo is not None:
+            dt = dt.astimezone(ZoneInfo(tz_name))
+        return dt.strftime("%d %b, %H:%M")
+    except Exception:  # noqa: BLE001
+        return dt.astimezone(timezone.utc).strftime("%d %b, %H:%M UTC")
+
+
+def _esc(text: str) -> str:
+    return html.escape(text or "")
+
+
+def _throughline_box(text: str) -> str:
+    if not text:
+        return ""
+    safe = _esc(text).replace("\n", "<br>")
+    return (
+        '<div style="background:#f3f0ff;border:1px solid #d0bfff;border-radius:8px;'
+        'padding:14px 16px;margin:16px 0 8px;">'
+        '<div style="font-size:11px;font-weight:700;letter-spacing:0.5px;'
+        'color:#7048e8;text-transform:uppercase;margin-bottom:6px;">🧭 Today\'s throughline</div>'
+        f'<div style="font-size:14px;color:#343a40;line-height:1.55;">{safe}</div>'
+        "</div>"
+    )
+
+
+def build(grouped: dict[str, list[dict]], cfg: dict, throughline: str = "") -> tuple[str, str, bool]:
+    """Return (subject, html_body, is_empty).
+
+    is_empty is True when there were no new items — main.py still sends a short
+    "alive" email so a silent pipeline is distinguishable from a broken one.
+    `throughline` (optional) is the synthesized "what's happening today" line
+    rendered under the header.
+    """
+    tz_name = (cfg or {}).get("timezone", "UTC")
+    today = datetime.now(timezone.utc)
+    if ZoneInfo is not None:
+        try:
+            today = today.astimezone(ZoneInfo(tz_name))
+        except Exception:  # noqa: BLE001
+            pass
+    date_str = today.strftime("%A, %d %B %Y")
+
+    total = sum(len(v) for v in (grouped or {}).values())
+
+    styles = (
+        "font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"
+        "max-width:680px;margin:0 auto;color:#1a1a2e;line-height:1.5;"
+    )
+
+    if total == 0:
+        subject = f"NewsBot — no new items ({today.strftime('%d %b')})"
+        body = (
+            f'<div style="{styles}">'
+            f'<h2 style="margin-bottom:4px;">📰 NewsBot Daily Digest</h2>'
+            f'<p style="color:#6c757d;margin-top:0;">{_esc(date_str)}</p>'
+            f'<p>No new items cleared the relevance filter today. '
+            f"The pipeline ran fine — this is just a quiet news day.</p>"
+            f"</div>"
+        )
+        return subject, body, True
+
+    parts = [
+        f'<div style="{styles}">',
+        f'<h2 style="margin-bottom:4px;">📰 NewsBot Daily Digest</h2>',
+        f'<p style="color:#6c757d;margin-top:0;">{_esc(date_str)} · {total} items</p>',
+        _throughline_box(throughline),
+    ]
+
+    ordered_topics = [t for t in TOPIC_ORDER if t in grouped]
+    ordered_topics += [t for t in grouped if t not in ordered_topics]
+
+    for topic in ordered_topics:
+        items = grouped[topic]
+        if not items:
+            continue
+        heading = TOPIC_TITLES.get(topic, f"📌 {topic.title()}")
+        parts.append(
+            f'<h3 style="border-bottom:2px solid #e9ecef;padding-bottom:6px;'
+            f'margin-top:28px;">{_esc(heading)} '
+            f'<span style="color:#adb5bd;font-weight:normal;font-size:13px;">'
+            f'({len(items)})</span></h3>'
+        )
+        for it in items:
+            title = _esc(it.get("title", "(untitled)"))
+            url = _esc(it.get("url", "#"))
+            source = _esc(it.get("source", ""))
+            tier = it.get("tier", "")
+            badge = TIER_BADGE.get(tier, "")
+            when = _esc(_fmt_time(it.get("published"), tz_name))
+            snippet = _esc((it.get("summary") or "")[:220])
+
+            meta_bits = [b for b in (source, when, badge) if b]
+            meta_line = " · ".join(meta_bits)
+
+            parts.append(
+                '<div style="margin:14px 0;padding-left:12px;'
+                'border-left:3px solid #4361ee;">'
+                f'<a href="{url}" style="font-weight:600;color:#3a0ca3;'
+                f'text-decoration:none;font-size:15px;">{title}</a>'
+                f'<div style="color:#868e96;font-size:12px;margin:2px 0;">{meta_line}</div>'
+                + (f'<div style="color:#495057;font-size:13px;">{snippet}</div>' if snippet else "")
+                + "</div>"
+            )
+
+    parts.append(
+        '<hr style="margin-top:32px;border:none;border-top:1px solid #e9ecef;">'
+        '<p style="color:#adb5bd;font-size:11px;">Generated by NewsBot · '
+        "free RSS + GitHub releases + Google Alerts + HN/Reddit · no paid APIs</p>"
+        "</div>"
+    )
+
+    subject = f"NewsBot Daily — {total} items ({today.strftime('%d %b')})"
+    return subject, "".join(parts), False

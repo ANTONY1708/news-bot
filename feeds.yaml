@@ -1,0 +1,110 @@
+# ALL sources, tagged by topic and tier.
+# Tier is metadata for logging/debugging (so you know which feeds are the flaky ones).
+# A dead feed is skipped, never fatal.
+#
+# Tier A = native RSS/Atom          (high reliability)
+# Tier B = GitHub releases.atom     (high reliability, the changelog IS the news)
+# Tier C = Google Alerts RSS        (medium reliability, slightly noisy)
+#
+# Tier C is auto-activated via Google News RSS (config.yaml -> google_news.activate_tier_c: true):
+# any entry still holding PASTE_ALERT_RSS_URL is fetched as a Google News search built from its
+# `query` field (falling back to the quoted source name). No manual Google Alerts needed.
+# To use a real native/Google-Alert feed instead, just replace PASTE_ALERT_RSS_URL with the URL.
+
+feeds:
+  # ---------- Tier A: native RSS/Atom ----------
+  - { url: "https://openai.com/blog/rss.xml",                       source: "OpenAI",       tier: A, tags: [ai, agents] }
+  # Anthropic publishes no public RSS feed (rss.xml 404s) — demoted to a Tier-C
+  # Google Alert below rather than deleted. See the Tier-C section.
+  - { url: "https://blog.google/technology/ai/rss/",                source: "Google AI",    tier: A, tags: [ai] }
+  - { url: "https://huggingface.co/blog/feed.xml",                  source: "HuggingFace",  tier: A, tags: [ai] }
+  - { url: "https://blog.langchain.com/rss.xml",                    source: "LangChain",    tier: A, tags: [ai, agents, automation] }  # was blog.langchain.dev/rss/ (301 → HTML)
+  - { url: "https://n8n.io/blog/rss/",                              source: "n8n",          tier: A, tags: [automation] }
+  - { url: "https://zapier.com/blog/feeds/latest/",                 source: "Zapier",       tier: A, tags: [automation] }
+  - { url: "https://blog.hubspot.com/marketing/rss.xml",            source: "HubSpot",      tier: A, tags: [marketing, sales] }
+  - { url: "https://ahrefs.com/blog/feed/",                         source: "Ahrefs",       tier: A, tags: [marketing, seo] }
+  - { url: "https://www.semrush.com/blog/feed/",                    source: "Semrush",      tier: A, tags: [marketing, seo] }
+  # General tech/AI press — broad "overall internet" coverage:
+  - { url: "https://techcrunch.com/category/artificial-intelligence/feed/",  source: "TechCrunch AI", tier: A, tags: [ai, agents, gtm] }
+  - { url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", source: "The Verge AI", tier: A, tags: [ai] }
+  # Macro / industry-signal feeds (the "where is the market going" layer that
+  # vendor blogs can't give). Curated & verified free — NOT volume for its own sake.
+  - { url: "https://future.a16z.com/feed/",         source: "a16z",             tier: A, tags: [ai, gtm] }
+  - { url: "https://www.lennysnewsletter.com/feed", source: "Lenny's Newsletter", tier: A, tags: [gtm, marketing, sales] }
+  - { url: "https://importai.substack.com/feed",    source: "Import AI",        tier: A, tags: [ai, agents] }
+  # NOTE: verify each Tier-A URL resolves at build time; if one 404s,
+  # demote that source to a Tier-C Google Alert entry rather than deleting it.
+
+  # ---------- Tier B: GitHub releases (the changelog) ----------
+  - { url: "https://github.com/crewAIInc/crewAI/releases.atom",             source: "CrewAI",            tier: B, tags: [agents, automation] }
+  - { url: "https://github.com/langchain-ai/langgraph/releases.atom",       source: "LangGraph",         tier: B, tags: [agents] }
+  - { url: "https://github.com/microsoft/autogen/releases.atom",            source: "AutoGen",           tier: B, tags: [agents] }
+  - { url: "https://github.com/run-llama/llama_index/releases.atom",        source: "LlamaIndex",        tier: B, tags: [ai, agents] }
+  - { url: "https://github.com/FlowiseAI/Flowise/releases.atom",            source: "Flowise",           tier: B, tags: [automation, agents] }
+  - { url: "https://github.com/openai/openai-agents-python/releases.atom",  source: "OpenAI Agents SDK", tier: B, tags: [agents] }
+  - { url: "https://github.com/modelcontextprotocol/servers/releases.atom", source: "MCP",               tier: B, tags: [agents] }
+  # ---- Free/open models, inference & AI media tooling (the release IS the news) ----
+  - { url: "https://github.com/ollama/ollama/releases.atom",                source: "Ollama",            tier: B, tags: [models, ai] }
+  - { url: "https://github.com/vllm-project/vllm/releases.atom",            source: "vLLM",              tier: B, tags: [models, ai] }
+  - { url: "https://github.com/ggml-org/llama.cpp/releases.atom",           source: "llama.cpp",         tier: B, tags: [models, ai] }
+  - { url: "https://github.com/huggingface/transformers/releases.atom",     source: "Transformers",      tier: B, tags: [models, ai] }
+  - { url: "https://github.com/unslothai/unsloth/releases.atom",            source: "Unsloth",           tier: B, tags: [models, ai] }
+  - { url: "https://github.com/comfyanonymous/ComfyUI/releases.atom",       source: "ComfyUI",           tier: B, tags: [video, ai] }
+  - { url: "https://github.com/n8n-io/n8n/releases.atom",                   source: "n8n (releases)",    tier: B, tags: [automation] }
+  - { url: "https://github.com/langflow-ai/langflow/releases.atom",         source: "Langflow",          tier: B, tags: [automation, agents] }
+  # Add any other OSS tool the same way: <org>/<repo>/releases.atom
+
+  # ---------- Tier C: auto-activated via Google News RSS (uses `query`) ----------
+  # `query` is the Google News search string — kept specific to cut noise.
+  - { url: "PASTE_ALERT_RSS_URL", source: "Anthropic",   query: '"Anthropic" (Claude OR model OR launch)', tier: C, tags: [ai, agents] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Clay",        query: '"Clay.com" (product OR feature OR funding)', tier: C, tags: [gtm, sales, marketing] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Apollo",      query: '"Apollo.io" (feature OR launch OR update)',  tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Lemlist",     query: '"lemlist"',            tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Instantly",   query: '"Instantly.ai"',       tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Outreach",    query: '"Outreach.io"',        tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Salesloft",   query: '"Salesloft"',          tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Gong",        query: '"Gong.io"',            tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "ZoomInfo",    query: '"ZoomInfo"',           tier: C, tags: [sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Workato",     query: '"Workato"',            tier: C, tags: [automation] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Lindy",       query: '"Lindy.ai" OR "Lindy AI"', tier: C, tags: [automation, agents] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Relevance AI", query: '"Relevance AI"',      tier: C, tags: [automation, agents] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Relay.app",   query: '"Relay.app"',          tier: C, tags: [automation] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Make",        query: '"Make.com" automation', tier: C, tags: [automation] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Crossbeam",   query: '"Crossbeam" (partner OR ecosystem)', tier: C, tags: [gtm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Common Room", query: '"Common Room" (community OR platform)', tier: C, tags: [gtm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "HockeyStack", query: '"HockeyStack"',        tier: C, tags: [gtm, marketing] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Mutiny",      query: '"Mutiny" personalization', tier: C, tags: [gtm, marketing] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Copy.ai",     query: '"Copy.ai"',            tier: C, tags: [gtm, marketing] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Demandbase",  query: '"Demandbase"',         tier: C, tags: [abm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "6sense",      query: '"6sense"',             tier: C, tags: [abm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Terminus",    query: '"Terminus" ABM',       tier: C, tags: [abm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "RollWorks",   query: '"RollWorks"',          tier: C, tags: [abm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Winning by Design", query: '"Winning by Design"', tier: C, tags: [tam, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Pavilion",    query: '"Pavilion" (GTM OR revenue community)', tier: C, tags: [tam, gtm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Gartner",     query: '"Gartner" (AI OR sales OR marketing)', tier: C, tags: [tam] }  # press-release level (paywalled)
+  - { url: "PASTE_ALERT_RSS_URL", source: "Forrester",   query: '"Forrester" (AI OR sales OR marketing)', tier: C, tags: [tam] }  # press-release level (paywalled)
+
+  # ---- GTM tools (added on request) — no native RSS, covered via Google News ----
+  - { url: "PASTE_ALERT_RSS_URL", source: "ColdIQ",      query: '"ColdIQ"',                              tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Genesys",     query: '"Genesys" (AI OR launch OR "contact center")', tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Workflow.io", query: '"Workflow.io"',                         tier: C, tags: [gtm, automation] }  # ambiguous name — confirm exact domain if wrong
+  - { url: "PASTE_ALERT_RSS_URL", source: "Clari",       query: '"Clari" (revenue OR forecast OR RevOps)', tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Chili Piper", query: '"Chili Piper"',                         tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Warmly",      query: '"Warmly.ai" OR "Warmly" (sales OR signal)', tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Amplemarket", query: '"Amplemarket"',                         tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Smartlead",   query: '"Smartlead"',                           tier: C, tags: [gtm, sales] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Koala",       query: '"Koala.live" OR "getkoala"',            tier: C, tags: [gtm] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Unify",       query: '"Unify GTM" OR "Unify.ai"',             tier: C, tags: [gtm] }
+
+  # ---- AI media & model vendors (no reliable native RSS → Google News) ----
+  - { url: "PASTE_ALERT_RSS_URL", source: "Runway",      query: '"Runway" ("Gen-3" OR "Gen-4" OR video OR model)', tier: C, tags: [video, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Pika",        query: '"Pika Labs" OR "Pika" AI video',        tier: C, tags: [video, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Luma AI",     query: '"Luma AI" OR "Dream Machine"',          tier: C, tags: [video, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Kling",       query: '"Kling AI" video',                      tier: C, tags: [video, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "ElevenLabs",  query: '"ElevenLabs" (voice OR audio OR model)', tier: C, tags: [audio, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Suno",        query: '"Suno AI" music',                       tier: C, tags: [audio, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Mistral AI",  query: '"Mistral AI" (model OR release OR launch)', tier: C, tags: [models, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "DeepSeek",    query: '"DeepSeek" (model OR release)',         tier: C, tags: [models, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Groq",        query: '"Groq" ("free tier" OR inference OR API)', tier: C, tags: [models, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "Together AI", query: '"Together AI" (model OR "free" OR inference)', tier: C, tags: [models, ai] }
+  - { url: "PASTE_ALERT_RSS_URL", source: "OpenRouter",  query: '"OpenRouter" ("free model" OR model)',  tier: C, tags: [models, ai] }
