@@ -1,6 +1,4 @@
 [
-"https://news.google.com/rss/articles/CBMilAFBVV95cUxQS0pFQUtUbzhJUS14U3VuZ1MzWV9UN1lXS0VEd0dVWXJZVzNQa0E1RnNSbmY2WG9Qb3QwY2ZwVThBVXVIUUk5U3NvcDJlZ1ZYWmF3dktpc3lCSjRweEk5dkx0OERVNVBxOGlTWDZqbDR5QjQ2UXRKOV9SOVBkR1lfeUpsdHdlUWI0RkNkME9RRFg0Sms0?oc=5",
-"https://news.google.com/rss/articles/CBMilAFBVV95cUxQTXowS3dCa2NjNjFnamdpbUtMVHFKakZ1LUNGUEJybFd1UzFIekNXbTRHckJTT2tmbEhqVVBOb0xFRXpFRWdoQUlmS3VRenBjQTZFRUlNY0t5OEM3dDJfcXpEZ2tMd3dFMndhRndxYklKTnY1REpMMzBnRlh6bGYxRTl1SzAtd1JXeXFnZVk5TlhlZTdT?oc=5",
 "https://news.google.com/rss/articles/CBMilAFBVV95cUxQVXZrYlpVUmNGNUVNY2prZVUxLWxFWnRJcVhOZXptcDQ3Q0hpV3BkcVEzbGdUdEwyVGlwcnY0dGJITkJhc25ucENHcmNTa0VuZEhrU1pQU2ktNDRMRVdudTRBSkFXbWlLS3JHSG9LZmR3Q3JyQ2ZONjBBWTc1Ni1PQXkxRUpJVHdCaEhHSG9COTJjUVJz?oc=5",
 "https://news.google.com/rss/articles/CBMilAFBVV95cUxQWGNZTUtPZFpER21pV3BvVkFRaFZ2RjZ3Z3JWdW9fUU5aRTJBUVZEREt3R1ZGM1o2MDR2aXZaQXZya2dvVTNaMUNkak9QSmZSWmdvSVVYLXpsdkVBRFhjeWVBOF9rLVJUa1JSWk45WG03UndDWERxZm1FeGgxdlpUOGViYUFMVVR3S0Z1bDYtQ1Mya04w?oc=5",
 "https://news.google.com/rss/articles/CBMilAFBVV95cUxQX201X3prZnVYa0ZmU2ZvZWRES3JsdFYtWXNPSWo3Smh3elJCMnFEZlR6R2hLM1piVS16UEhTU1I3QkVpS2taaWQtbmwyVUd2UU9FYkFXOFVnVzl3WXg4VXlHemhmZlJ6T1FxNjNwM2tIa01tNWppQ2xFQ2NtNFQtSjdfWlcxOFFQVWJKbmc1eVRodWhE?oc=5",
@@ -2275,6 +2273,7 @@
 "https://www.langchain.com/blog/agent-data-stack",
 "https://www.langchain.com/blog/agent-harness-life-sciences",
 "https://www.langchain.com/blog/agentic-engineering-redefining-software-engineering",
+"https://www.langchain.com/blog/agents-are-going-async",
 "https://www.langchain.com/blog/agents-need-their-own-computer",
 "https://www.langchain.com/blog/agents-round",
 "https://www.langchain.com/blog/agents-that-can-pay-with-stripe-link",
@@ -2289,6 +2288,7 @@
 "https://www.langchain.com/blog/common-questions-about-agent-evals",
 "https://www.langchain.com/blog/connections-managed-credentials-and-per-caller-identity-for-managed-deep-agents",
 "https://www.langchain.com/blog/context-engineering-deep-agents-remember",
+"https://www.langchain.com/blog/context-engineering-starts-with-retrieval",
 "https://www.langchain.com/blog/context-management-for-deepagents",
 "https://www.langchain.com/blog/customer-experience-cx-agents-in-production-lessons-from-lyft-vodafone-and-latam-airlines",
 "https://www.langchain.com/blog/customers-podium",
